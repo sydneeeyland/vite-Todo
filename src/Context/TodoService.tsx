@@ -7,6 +7,7 @@ import SignInDialog from '../Components/Dialog/SignInDialog';
 import { InitialData, Users } from '../Constant/Common';
 
 export const TodoServiceContext = createContext({
+  userData: '',
   SignedIn: false,
   mockData: {
     ...InitialData,
@@ -20,6 +21,12 @@ export const TodoServiceContext = createContext({
   },
   handleCreateTask(val: unknown) {
     return val;
+  },
+  handleUpdateTask(val: unknown) {
+    return val;
+  },
+  handleDeleteTask() {
+    null;
   },
   handleShowCreateModal(val: unknown) {
     return val;
@@ -53,8 +60,8 @@ type payloadProps = {
 export default function TodoServiceContextProvider({ children }: Props) {
   const [SignedIn, setSignedIn] = useState(false);
   const [userData, setUserData] = useState('');
-  const [mockData, setMockData] = useState({ ...InitialData });
-  const [updateData, setUpdateData] = useState<payloadProps>({
+  const [mockData, setMockData] = useState<any>({ ...InitialData });
+  const [updateData, setUpdateData] = useState({
     id: 0,
     task: '',
     user: '',
@@ -72,16 +79,42 @@ export default function TodoServiceContextProvider({ children }: Props) {
     setShowCreateTaskModal(false);
   };
 
+  const handleUpdateTask = (payload: payloadProps) => {
+    const { status } = payload;
+    const oldValue = mockData[
+      updateData.status as keyof typeof mockData
+    ].filter((key: any) => key.id !== updateData.id);
+
+    setMockData((prev: any) => ({
+      ...prev,
+      [status]: [payload],
+      [updateData.status]: oldValue,
+    }));
+    setShowUpdateTaskModal(false);
+  };
+
+  const handleDeleteTask = () => {
+    const oldValue = mockData[
+      updateData.status as keyof typeof mockData
+    ].filter((key: any) => key.id !== updateData.id);
+
+    setMockData((prev: any) => ({
+      ...prev,
+      [updateData.status]: oldValue,
+    }));
+    setShowUpdateTaskModal(false);
+  };
+
   const handleShowCreateModal = () => {
     setShowCreateTaskModal(true);
   };
 
   const handleShowUpdateModal = (boardType: string, id: number) => {
-    setShowUpdateTaskModal(true);
     const filter: any = mockData[boardType as keyof typeof mockData].filter(
-      (key) => key.id === id
+      (key: any) => key.id === id
     )[0];
     setUpdateData(filter);
+    setShowUpdateTaskModal(true);
     return [boardType, id];
   };
 
@@ -110,10 +143,13 @@ export default function TodoServiceContextProvider({ children }: Props) {
   return (
     <TodoServiceContext.Provider
       value={{
+        userData,
         SignedIn,
         mockData,
         updateData,
         handleCreateTask,
+        handleUpdateTask,
+        handleDeleteTask,
         handleShowCreateModal,
         handleShowUpdateModal,
         handleShowSignInModal,

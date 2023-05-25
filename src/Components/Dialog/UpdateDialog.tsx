@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 
 import { Button, TextField, Box, Typography, Grid } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
@@ -22,11 +22,17 @@ type Props = {
 };
 
 function UpdateDialog({ open, handleClose }: Props) {
-  const { updateData } = useContext(TodoServiceContext);
+  const { updateData, handleUpdateTask, handleDeleteTask, userData } =
+    useContext(TodoServiceContext);
   const [selectedUser, setSelectedUser] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState('');
   const [comment, setComment] = useState('');
   const [payload, setPayload] = useState(updateData);
-  console.log(payload);
+
+  useEffect(() => {
+    setPayload(updateData);
+  }, [updateData]);
+
   return (
     <Dialog
       open={open}
@@ -39,13 +45,14 @@ function UpdateDialog({ open, handleClose }: Props) {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          const initialComments: any = updateData.comments;
-          initialComments.push(comment);
           if (comment !== '') {
+            const initialComments: any = updateData.comments;
+            initialComments.push(comment);
             setPayload((prev) => ({
               ...prev,
               comments: initialComments,
             }));
+            handleUpdateTask(payload);
           }
         }}
       >
@@ -89,6 +96,27 @@ function UpdateDialog({ open, handleClose }: Props) {
                 ))}
               </Select>
             </FormControl>
+            <FormControl sx={{ mt: 1 }} fullWidth>
+              <InputLabel id="update-status-label">Status</InputLabel>
+              <Select
+                labelId="update-status-label"
+                id="update-status-select"
+                label="Status"
+                value={selectedStatus || updateData.status}
+                onChange={(e) => {
+                  setSelectedStatus(e.target.value);
+                  setPayload((prev) => ({
+                    ...prev,
+                    status: e.target.value,
+                  }));
+                }}
+              >
+                <MenuItem value="backlog">Backlog</MenuItem>
+                <MenuItem value="todo">To do</MenuItem>
+                <MenuItem value="inprogress">In Progress</MenuItem>
+                <MenuItem value="done">Done</MenuItem>
+              </Select>
+            </FormControl>
           </Box>
           <Typography mt={2} fontWeight="bold">
             Comments
@@ -125,7 +153,7 @@ function UpdateDialog({ open, handleClose }: Props) {
               rows={4}
               onChange={(e) => {
                 if (e.target.value !== '') {
-                  setComment(`${e.target.value} - ${updateData.user}`);
+                  setComment(`${e.target.value} - ${userData}`);
                 } else {
                   setComment('');
                 }
@@ -134,6 +162,15 @@ function UpdateDialog({ open, handleClose }: Props) {
           </Box>
         </DialogContent>
         <DialogActions>
+          <Button
+            type="submit"
+            autoFocus
+            size="small"
+            sx={{ color: 'red' }}
+            onClick={() => handleDeleteTask()}
+          >
+            Delete
+          </Button>
           <Button type="submit" autoFocus>
             Update
           </Button>

@@ -1,13 +1,5 @@
 export const InitialData = {
-  backlog: [
-    {
-      id: 1,
-      task: 'Redux ToolKit',
-      user: 'Jane Doe',
-      status: 'Backlog',
-      comments: ['Testing - Jane Doe'],
-    },
-  ],
+  backlog: [],
   todo: [],
   inprogress: [],
   done: [],

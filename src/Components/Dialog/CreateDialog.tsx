@@ -27,7 +27,7 @@ function CreateDialog({ open, handleClose }: Props) {
     id: 0,
     task: '',
     user: '',
-    status: 'Backlog',
+    status: 'backlog',
     comments: [],
   });
 
